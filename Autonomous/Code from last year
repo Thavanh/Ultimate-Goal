@@ -1,0 +1,172 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
+
+@Autonomous(name="Left_farside", group="Pushbot")
+//@Disabled
+public class Left_farside extends LinearOpMode {
+
+    /* Declare OpMode members. */
+
+    HardwarePushbot robot   = new HardwarePushbot();   // Use a Pushbot's hardware
+    private ElapsedTime runtime = new ElapsedTime();
+
+
+    DcMotor centerMotor;
+    DcMotor leftDrive;
+    DcMotor rightDrive;
+
+    static final double     COUNTS_PER_MOTOR_REV    = 1680 ;    // eg: TETRIX Motor Encoder
+    static final double     DRIVE_GEAR_REDUCTION    = .75 ;     // This is < 1.0 if geared UP
+    static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
+    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
+            (WHEEL_DIAMETER_INCHES * 3.1415);
+    static final double     DRIVE_SPEED             = 0.6;
+    static final double     TURN_SPEED              = 0.3;
+    double power = -0.5;
+    static final double     FORWARD_SPEED = 0.6;
+    //static final double     TURN_SPEED    = 0.5;
+    double servoPosition = 1.0;
+
+    @Override
+    public void runOpMode() throws InterruptedException
+    {
+        /*
+         * Initialize the drive system variables.
+         * The init() method of the hardware class does all the work here
+         */
+        // Send telemetry message to signify robot waiting;
+        telemetry.addData("Status", "Press Start to run");    //
+        telemetry.update();
+
+        leftDrive = hardwareMap.dcMotor.get("Motor_0");
+        rightDrive = hardwareMap.dcMotor.get("Motor_2");
+        centerMotor = hardwareMap.dcMotor.get("Motor_1");
+
+        //servo = hardwareMap.servo.get("servo");
+        //servo.setPosition(servoPosition);
+        leftDrive.setDirection(DcMotor.Direction.FORWARD);
+        centerMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightDrive.setDirection(DcMotor.Direction.REVERSE);
+
+        // reset encoder count kept by left motor.
+        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        // set left motor to run to target encoder position and stop with brakes on.
+        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        // Wait for the game to start (driver presses PLAY)
+
+        waitForStart();
+        telemetry.addData("Mode", "running");
+        telemetry.update();
+
+        // Step through each leg of the path, ensuring that the Auto mode has not been stopped along the way
+
+        //Extend Linear actuator
+
+// Step 0:  Drop From Lunar Lander
+
+        leftDrive.setPower(0.0);
+        rightDrive.setPower(0.0);
+        centerMotor.setPower(0.0);
+
+        //Begin  Drop sequence
+        //linearactuator.setTargetPosition(-3500);
+        //linearactuator.setPower(power);
+        // sleep(1400);
+
+        //linearactuator.setTargetPosition(-1700);
+        //linearactuator.setPower(-0.75);
+        runtime.reset();
+        while (opModeIsActive() && (runtime.seconds() < 1.0)) {
+            telemetry.addData("Path", "Start Sequence: %2.5f S Elapsed", runtime.seconds());
+            telemetry.addData("encoder-fwd", leftDrive.getCurrentPosition() + "  busy=" + leftDrive.isBusy());
+            telemetry.addData("encoder-fwd", rightDrive.getCurrentPosition() + "  busy=" + rightDrive.isBusy());
+            telemetry.update();
+
+        }
+
+        //linearactuator.setPower(0);
+        telemetry.addData("Path", "Prepare for Movement", runtime.seconds());
+        telemetry.addData("encoder-fwd", leftDrive.getCurrentPosition() + "  busy=" + leftDrive.isBusy());
+        telemetry.addData("encoder-fwd", rightDrive.getCurrentPosition() + "  busy=" + rightDrive.isBusy());
+        telemetry.update();
+        sleep(2000);
+
+
+
+        // Step 1:  Drive forward for xxxx encoder counts
+
+        leftDrive.setTargetPosition(-3100);
+        rightDrive.setTargetPosition(-3100);
+        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftDrive.setPower(-0.50);
+        rightDrive.setPower(-0.50);
+        runtime.reset();
+        while (opModeIsActive() && (runtime.seconds() < 3.5)) {
+            telemetry.addData("Path", "Leg 1 Drive Forward: %2.5f S Elapsed", runtime.seconds());
+            telemetry.addData("encoder-fwd", leftDrive.getCurrentPosition() + "  busy=" + leftDrive.isBusy());
+            telemetry.addData("encoder-fwd", rightDrive.getCurrentPosition() + "  busy=" + rightDrive.isBusy());
+            telemetry.update();
+
+        }
+
+        // Step 1.2:  turn encoder counts
+        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftDrive.setTargetPosition(-1100);
+        rightDrive.setTargetPosition(1100);
+        leftDrive.setPower(0.25);
+        rightDrive.setPower(-0.25);
+        runtime.reset();
+        while (opModeIsActive() && (runtime.seconds() < 3.5)) {
+            telemetry.addData("Path", "Leg 1: %2.5f S Elapsed", runtime.seconds());
+            telemetry.addData("encoder-fwd", leftDrive.getCurrentPosition() + "  busy=" + leftDrive.isBusy());
+            telemetry.addData("encoder-fwd", rightDrive.getCurrentPosition() + "  busy=" + rightDrive.isBusy());
+            telemetry.update();
+        }
+
+        // Step 2:  Drop Flag
+        //Turn off drive motors
+        leftDrive.setPower(0.0);
+        rightDrive.setPower(0.0);
+        //drop flag
+        // servoPosition = 0.50;
+        //servo.setPosition(servoPosition);
+        runtime.reset();
+        while (opModeIsActive() && (runtime.seconds() < 2.0)) {
+            telemetry.addData("Path", "Drop the Flag: %2.5f S Elapsed", runtime.seconds());
+            telemetry.addData("encoder-fwd", leftDrive.getCurrentPosition() + "  busy=" + leftDrive.isBusy());
+            telemetry.addData("encoder-fwd", rightDrive.getCurrentPosition() + "  busy=" + rightDrive.isBusy());
+            telemetry.update();
+            sleep(1000);
+        }
+        // Step 3:  DRive Backwards
+        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftDrive.setTargetPosition(-2400);
+        rightDrive.setTargetPosition(-2400);
+        leftDrive.setPower(0.55);
+        rightDrive.setPower(0.55);
+        runtime.reset();
+        while (opModeIsActive() && (runtime.seconds() < 2.5)) {
+            telemetry.addData("Path", "Leg 2 Drive Backwards: %2.5f S Elapsed", runtime.seconds());
+            telemetry.addData("encoder-fwd", leftDrive.getCurrentPosition() + "  busy=" + leftDrive.isBusy());
+            telemetry.addData("encoder-fwd", rightDrive.getCurrentPosition() + "  busy=" + rightDrive.isBusy());
+            telemetry.update();
+        }
+    }}
